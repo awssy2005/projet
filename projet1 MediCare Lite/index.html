@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MediCare Lite</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+    <header>
+        <h1><i class="fas fa-heartbeat"></i> MediCare Lite</h1>
+        <nav>
+            <button id="patientsBtn" class="nav-btn active"><i class="fas fa-users"></i> Patients</button>
+            <button id="rdvBtn" class="nav-btn"><i class="fas fa-calendar-alt"></i> Rendez-vous</button>
+            <button id="statsBtn" class="nav-btn"><i class="fas fa-chart-bar"></i> Statistiques</button>
+        </nav>
+    </header>
+
+    <!-- Section Patients -->
+    <section id="patientsSection" class="page active">
+        <div class="section-header">
+            <h2><i class="fas fa-users"></i> Liste des patients</h2>
+            <div class="header-actions">
+                <input type="text" id="searchPatient" placeholder="Rechercher un patient..." class="search-input">
+                <button id="togglePatientForm" class="btn-toggle"><i class="fas fa-plus"></i> Ajouter un patient</button>
+            </div>
+        </div>
+        
+        <!-- Formulaire d'ajout -->
+        <form id="patientForm" class="form-container hidden">
+            <div class="form-row">
+                <input type="text" id="name" placeholder="Nom du patient" required>
+                <input type="number" id="age" placeholder="Âge" min="1" max="120" required>
+            </div>
+            <div class="form-row">
+                <input type="text" id="disease" placeholder="Diagnostic">
+                <input type="tel" id="phone" placeholder="Téléphone">
+            </div>
+            <div class="form-row">
+                <input type="email" id="email" placeholder="Email">
+                <textarea id="patientNote" placeholder="Notes additionnelles"></textarea>
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="btn-add"><i class="fas fa-plus"></i> Ajouter Patient</button>
+                <button type="button" id="cancelPatient" class="btn-cancel">Annuler</button>
+            </div>
+        </form>
+
+        <!-- Liste dynamique -->
+        <ul id="patientsList" class="list-container"></ul>
+        
+        <!-- Export -->
+        <div class="export-section">
+            <button id="exportPatients" class="btn-export"><i class="fas fa-download"></i> Exporter Patients (JSON)</button>
+            <button id="exportPatientsCSV" class="btn-export"><i class="fas fa-file-csv"></i> Exporter Patients (CSV)</button>
+        </div>
+    </section>
+
+    <!-- Section RDV -->
+    <section id="rdvSection" class="page">
+        <div class="section-header">
+            <h2><i class="fas fa-calendar-alt"></i> Planifier un rendez-vous</h2>
+            <button id="toggleRdvForm" class="btn-toggle"><i class="fas fa-plus"></i> Ajouter un RDV</button>
+        </div>
+        
+        <form id="rdvForm" class="form-container hidden">
+            <div class="form-row">
+                <select id="rdvPatient" required>
+                    <option value="">Sélectionner un patient</option>
+                </select>
+                <input type="date" id="rdvDate" required>
+            </div>
+            <div class="form-row">
+                <input type="time" id="rdvTime" required>
+                <textarea id="rdvNote" placeholder="Note (optionnel)"></textarea>
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="btn-add"><i class="fas fa-plus"></i> Ajouter le RDV</button>
+                <button type="button" id="cancelRdv" class="btn-cancel">Annuler</button>
+            </div>
+        </form>
+
+        <ul id="rdvList" class="list-container"></ul>
+        
+        <!-- Export -->
+        <div class="export-section">
+            <button id="exportRdvs" class="btn-export"><i class="fas fa-download"></i> Exporter RDV (JSON)</button>
+            <button id="exportRdvsCSV" class="btn-export"><i class="fas fa-file-csv"></i> Exporter RDV (CSV)</button>
+        </div>
+    </section>
+
+    <!-- Section Statistiques -->
+    <section id="statsSection" class="page">
+        <h2><i class="fas fa-chart-bar"></i> Statistiques</h2>
+        
+        <div class="stats-container">
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-users"></i>
+                </div>
+                <h3>Total Patients</h3>
+                <p id="totalPatients">0</p>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-calendar-check"></i>
+                </div>
+                <h3>Total RDV</h3>
+                <p id="totalRdvs">0</p>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-calendar-day"></i>
+                </div>
+                <h3>RDV ce mois</h3>
+                <p id="rdvsThisMonth">0</p>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-birthday-cake"></i>
+                </div>
+                <h3>Âge moyen</h3>
+                <p id="averageAge">0</p>
+            </div>
+        </div>
+        
+        <div class="charts-grid">
+            <div class="chart-container">
+                <h3>Répartition par âge</h3>
+                <canvas id="ageChart"></canvas>
+            </div>
+            <div class="chart-container">
+                <h3>RDV par mois</h3>
+                <canvas id="rdvChart"></canvas>
+            </div>
+            <div class="chart-container">
+                <h3>Diagnostics fréquents</h3>
+                <canvas id="diseaseChart"></canvas>
+            </div>
+        </div>
+    </section>
+
+    <!-- Modal de confirmation -->
+    <div id="confirmModal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Confirmation</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p id="confirmMessage">Êtes-vous sûr de vouloir effectuer cette action ?</p>
+            </div>
+            <div class="modal-actions">
+                <button id="confirmCancel" class="btn-cancel">Annuler</button>
+                <button id="confirmDelete" class="btn-delete">Supprimer</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notifications -->
+    <div id="notification" class="notification"></div>
+
+    <script src="script.js"></script>
+</body>
+</html>
