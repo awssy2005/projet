@@ -1,4 +1,5 @@
-# portfolio-awssaf
+# MediCare Lite
+
 Description
 MediCare Lite est une application web progressive de gestion médicale permettant aux professionnels de santé de gérer leurs patients et rendez-vous de manière efficace et intuitive. L'application fonctionne entièrement côté client avec persistance des données via le localStorage.
  Fonctionnalités
